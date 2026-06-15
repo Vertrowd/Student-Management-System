@@ -43,6 +43,9 @@ const TeacherDashboard = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
+  // Attendance history filter
+  const [attendanceFilter, setAttendanceFilter] = useState('all');
+
   useEffect(() => {
     fetchStudents();
   }, []);
@@ -554,138 +557,242 @@ const TeacherDashboard = () => {
                 </form>
               </div>
             ) : (
-              <div className="grid-2">
-                {/* Profile Overview */}
-                <div className="glass-panel details-card">
-                  <h3>Roster details</h3>
-                  <div className="info-list" style={{ marginTop: '20px' }}>
-                    <div className="info-item">
-                      <span className="info-label">Name</span>
-                      <span className="info-value">{selectedStudent.user?.name}</span>
-                    </div>
-                    <div className="info-item">
-                      <span className="info-label">Email</span>
-                      <span className="info-value">{selectedStudent.user?.email}</span>
-                    </div>
-                    <div className="info-item">
-                      <span className="info-label">Roll Number</span>
-                      <span className="info-value">{selectedStudent.rollNumber}</span>
-                    </div>
-                    <div className="info-item">
-                      <span className="info-label">Class/Grade</span>
-                      <span className="info-value">{selectedStudent.user?.grade || 'N/A'}</span>
-                    </div>
-                    <div className="info-item">
-                      <span className="info-label">Course</span>
-                      <span className="info-value">{selectedStudent.course || 'Not specified'}</span>
-                    </div>
-                    <div className="info-item">
-                      <span className="info-label">Semester</span>
-                      <span className="info-value">Semester {selectedStudent.semester}</span>
-                    </div>
-                  </div>
-                  <button 
-                    onClick={() => setIsEditingStudent(true)} 
-                    className="btn-primary" 
-                    style={{ width: 'auto', marginTop: '24px' }}
-                  >
-                    <Edit size={16} /> Edit Profile Info
-                  </button>
-                </div>
-
-                {/* Academic Grading Panel */}
-                <div className="glass-panel details-card">
-                  <h3>Subject Grades & Grading</h3>
-                  
-                  {/* Enter grades Form */}
-                  <form onSubmit={handleAddMarks} style={{ marginTop: '16px', borderBottom: '1px solid var(--card-border)', paddingBottom: '20px' }}>
-                    <div className="form-row">
-                      <div className="form-group" style={{ margin: 0 }}>
-                        <label htmlFor="subName">Subject Title</label>
-                        <input
-                          type="text"
-                          id="subName"
-                          placeholder="e.g. Database Systems"
-                          value={marksForm.name}
-                          onChange={(e) => setMarksForm({ ...marksForm, name: e.target.value })}
-                          style={{ paddingLeft: '16px' }}
-                          required
-                        />
+              <>
+                <div className="grid-2">
+                  {/* Profile Overview */}
+                  <div className="glass-panel details-card">
+                    <h3>Roster details</h3>
+                    <div className="info-list" style={{ marginTop: '20px' }}>
+                      <div className="info-item">
+                        <span className="info-label">Name</span>
+                        <span className="info-value">{selectedStudent.user?.name}</span>
                       </div>
-                      <div className="form-group" style={{ margin: 0 }}>
-                        <label htmlFor="subCode">Subject Code</label>
-                        <input
-                          type="text"
-                          id="subCode"
-                          placeholder="CS-302"
-                          value={marksForm.code}
-                          onChange={(e) => setMarksForm({ ...marksForm, code: e.target.value })}
-                          style={{ paddingLeft: '16px' }}
-                          required
-                        />
+                      <div className="info-item">
+                        <span className="info-label">Email</span>
+                        <span className="info-value">{selectedStudent.user?.email}</span>
                       </div>
-                      <div className="form-group" style={{ margin: 0 }}>
-                        <label htmlFor="subMarks">Marks (0-100)</label>
-                        <input
-                          type="number"
-                          id="subMarks"
-                          min="0"
-                          max="100"
-                          placeholder="85"
-                          value={marksForm.marks}
-                          onChange={(e) => setMarksForm({ ...marksForm, marks: e.target.value })}
-                          style={{ paddingLeft: '16px' }}
-                          required
-                        />
+                      <div className="info-item">
+                        <span className="info-label">Roll Number</span>
+                        <span className="info-value">{selectedStudent.rollNumber}</span>
+                      </div>
+                      <div className="info-item">
+                        <span className="info-label">Class/Grade</span>
+                        <span className="info-value">{selectedStudent.user?.grade || 'N/A'}</span>
+                      </div>
+                      <div className="info-item">
+                        <span className="info-label">Course</span>
+                        <span className="info-value">{selectedStudent.course || 'Not specified'}</span>
+                      </div>
+                      <div className="info-item">
+                        <span className="info-label">Semester</span>
+                        <span className="info-value">Semester {selectedStudent.semester}</span>
                       </div>
                     </div>
-                    <button type="submit" className="btn-primary" style={{ width: 'auto', marginTop: '12px' }}>
-                      <Plus size={16} /> Record Grade
+                    <button 
+                      onClick={() => setIsEditingStudent(true)} 
+                      className="btn-primary" 
+                      style={{ width: 'auto', marginTop: '24px' }}
+                    >
+                      <Edit size={16} /> Edit Profile Info
                     </button>
-                  </form>
+                  </div>
 
-                  {/* List of current subject grades */}
-                  <div style={{ marginTop: '20px' }}>
-                    <h4>Current Academic Log</h4>
-                    {selectedStudent.subjects.length === 0 ? (
-                      <p style={{ color: 'var(--text-secondary)', fontSize: '14px', marginTop: '10px' }}>No academic records on file.</p>
-                    ) : (
-                      <div className="table-container" style={{ marginTop: '10px' }}>
-                        <table className="custom-table" style={{ fontSize: '14px' }}>
-                          <thead>
-                            <tr>
-                              <th>Subject</th>
-                              <th>Score</th>
-                              <th>Grade</th>
-                              <th>Remove</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {selectedStudent.subjects.map((s, idx) => (
-                              <tr key={idx}>
-                                <td style={{ fontWeight: '600' }}>{s.name} <span style={{ fontSize: '11px', color: 'var(--text-secondary)', fontWeight: 'normal' }}>({s.code})</span></td>
-                                <td>{s.marks}%</td>
-                                <td>
-                                  <span className={`badge badge-grade-${s.grade.toLowerCase()}`}>{s.grade}</span>
-                                </td>
-                                <td>
-                                  <button 
-                                    onClick={() => handleDeleteMarks(s.code)}
-                                    className="btn-action btn-delete"
-                                    style={{ padding: '4px' }}
-                                  >
-                                    <Trash2 size={12} />
-                                  </button>
-                                </td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
+                  {/* Academic Grading Panel */}
+                  <div className="glass-panel details-card">
+                    <h3>Subject Grades & Grading</h3>
+                    
+                    {/* Enter grades Form */}
+                    <form onSubmit={handleAddMarks} style={{ marginTop: '16px', borderBottom: '1px solid var(--card-border)', paddingBottom: '20px' }}>
+                      <div className="form-row">
+                        <div className="form-group" style={{ margin: 0 }}>
+                          <label htmlFor="subName">Subject Title</label>
+                          <input
+                            type="text"
+                            id="subName"
+                            placeholder="e.g. Database Systems"
+                            value={marksForm.name}
+                            onChange={(e) => setMarksForm({ ...marksForm, name: e.target.value })}
+                            style={{ paddingLeft: '16px' }}
+                            required
+                          />
+                        </div>
+                        <div className="form-group" style={{ margin: 0 }}>
+                          <label htmlFor="subCode">Subject Code</label>
+                          <input
+                            type="text"
+                            id="subCode"
+                            placeholder="CS-302"
+                            value={marksForm.code}
+                            onChange={(e) => setMarksForm({ ...marksForm, code: e.target.value })}
+                            style={{ paddingLeft: '16px' }}
+                            required
+                          />
+                        </div>
+                        <div className="form-group" style={{ margin: 0 }}>
+                          <label htmlFor="subMarks">Marks (0-100)</label>
+                          <input
+                            type="number"
+                            id="subMarks"
+                            min="0"
+                            max="100"
+                            placeholder="85"
+                            value={marksForm.marks}
+                            onChange={(e) => setMarksForm({ ...marksForm, marks: e.target.value })}
+                            style={{ paddingLeft: '16px' }}
+                            required
+                          />
+                        </div>
                       </div>
-                    )}
+                      <button type="submit" className="btn-primary" style={{ width: 'auto', marginTop: '12px' }}>
+                        <Plus size={16} /> Record Grade
+                      </button>
+                    </form>
+
+                    {/* List of current subject grades */}
+                    <div style={{ marginTop: '20px' }}>
+                      <h4>Current Academic Log</h4>
+                      {selectedStudent.subjects.length === 0 ? (
+                        <p style={{ color: 'var(--text-secondary)', fontSize: '14px', marginTop: '10px' }}>No academic records on file.</p>
+                      ) : (
+                        <div className="table-container" style={{ marginTop: '10px' }}>
+                          <table className="custom-table" style={{ fontSize: '14px' }}>
+                            <thead>
+                              <tr>
+                                <th>Subject</th>
+                                <th>Score</th>
+                                <th>Grade</th>
+                                <th>Remove</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {selectedStudent.subjects.map((s, idx) => (
+                                <tr key={idx}>
+                                  <td style={{ fontWeight: '600' }}>{s.name} <span style={{ fontSize: '11px', color: 'var(--text-secondary)', fontWeight: 'normal' }}>({s.code})</span></td>
+                                  <td>{s.marks}%</td>
+                                  <td>
+                                    <span className={`badge badge-grade-${s.grade.toLowerCase()}`}>{s.grade}</span>
+                                  </td>
+                                  <td>
+                                    <button 
+                                      onClick={() => handleDeleteMarks(s.code)}
+                                      className="btn-action btn-delete"
+                                      style={{ padding: '4px' }}
+                                    >
+                                      <Trash2 size={12} />
+                                    </button>
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
+
+                {/* Attendance History Panel */}
+                <div className="glass-panel details-card" style={{ marginTop: '24px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
+                    <h3>Attendance Log & History</h3>
+                    <div className="attendance-options" style={{ margin: 0 }}>
+                      {['all', 'present', 'absent', 'late'].map(mode => (
+                        <button
+                          key={mode}
+                          type="button"
+                          onClick={() => setAttendanceFilter(mode)}
+                          className={`attendance-option-btn ${attendanceFilter === mode ? (mode === 'present' ? 'selected-present' : mode === 'absent' ? 'selected-absent' : mode === 'late' ? 'selected-late' : 'selected-all') : ''}`}
+                          style={{ textTransform: 'capitalize', fontSize: '12px', padding: '6px 12px' }}
+                        >
+                          {mode}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  
+                  {(() => {
+                    const totalDays = selectedStudent.attendance?.length || 0;
+                    const presentDays = selectedStudent.attendance?.filter(a => a.status === 'present').length || 0;
+                    const lateDays = selectedStudent.attendance?.filter(a => a.status === 'late').length || 0;
+                    const absentDays = totalDays - presentDays - lateDays;
+                    const rate = totalDays > 0 ? Math.round((presentDays / totalDays) * 100) : 0;
+                    
+                    const filteredRecords = (selectedStudent.attendance || []).filter(record => {
+                      if (attendanceFilter === 'all') return true;
+                      return record.status === attendanceFilter;
+                    });
+                    
+                    return (
+                      <>
+                        <div className="info-list" style={{ width: '100%', marginTop: '16px', gridTemplateColumns: 'repeat(4, 1fr)', textAlign: 'center', borderBottom: '1px solid var(--card-border)', paddingBottom: '16px' }}>
+                          <div className="info-item">
+                            <span className="info-label">Total Classes</span>
+                            <span className="info-value">{totalDays}</span>
+                          </div>
+                          <div className="info-item">
+                            <span className="info-label">Present</span>
+                            <span className="info-value" style={{ color: 'var(--success)' }}>{presentDays}</span>
+                          </div>
+                          <div className="info-item">
+                            <span className="info-label">Late</span>
+                            <span className="info-value" style={{ color: '#f59e0b' }}>{lateDays}</span>
+                          </div>
+                          <div className="info-item">
+                            <span className="info-label">Absent</span>
+                            <span className="info-value" style={{ color: '#ef4444' }}>{absentDays}</span>
+                          </div>
+                        </div>
+                        
+                        <div style={{ marginTop: '20px' }}>
+                          <h4 style={{ marginBottom: '10px' }}>
+                            Detailed Log {attendanceFilter !== 'all' ? `(${attendanceFilter})` : ''}
+                          </h4>
+                          {filteredRecords.length === 0 ? (
+                            <p style={{ color: 'var(--text-secondary)', fontSize: '14px', marginTop: '10px' }}>
+                              No {attendanceFilter !== 'all' ? attendanceFilter : ''} attendance logs on file.
+                            </p>
+                          ) : (
+                            <div className="table-container" style={{ marginTop: '10px', maxHeight: '250px', overflowY: 'auto' }}>
+                              <table className="custom-table" style={{ fontSize: '14px' }}>
+                                <thead>
+                                  <tr>
+                                    <th>Date</th>
+                                    <th>Day</th>
+                                    <th>Status</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  {filteredRecords.slice().reverse().map((record, idx) => (
+                                    <tr key={idx}>
+                                      <td style={{ fontWeight: '600' }}>
+                                        {new Date(record.date).toLocaleDateString(undefined, {
+                                          month: 'short',
+                                          day: 'numeric',
+                                          year: 'numeric'
+                                        })}
+                                      </td>
+                                      <td style={{ color: 'var(--text-secondary)' }}>
+                                        {new Date(record.date).toLocaleDateString(undefined, { weekday: 'long' })}
+                                      </td>
+                                      <td>
+                                        <span className={`badge ${
+                                          record.status === 'present' ? 'badge-present' : record.status === 'absent' ? 'badge-absent' : 'badge-late'
+                                        }`}>
+                                          {record.status}
+                                        </span>
+                                      </td>
+                                    </tr>
+                                  ))}
+                                </tbody>
+                              </table>
+                            </div>
+                          )}
+                        </div>
+                      </>
+                    );
+                  })()}
+                </div>
+              </>
             )}
           </div>
         )}

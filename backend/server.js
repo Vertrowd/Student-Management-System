@@ -18,8 +18,14 @@ const app = express();
 // Body parser
 app.use(express.json());
 
-// Enable CORS
-app.use(cors());
+// Enable CORS with custom options
+app.use(cors({
+  origin: true, // Automatically reflect the requesting origin
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  optionsSuccessStatus: 200
+}));
 
 // Mount routes
 app.use('/api/auth', authRoutes);

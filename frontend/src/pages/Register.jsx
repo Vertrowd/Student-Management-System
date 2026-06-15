@@ -179,9 +179,9 @@ const Register = () => {
                   placeholder="Enter administrator code"
                 />
               </div>
-              <small style={{ color: 'var(--text-muted)', fontSize: '11px', marginTop: '4px', display: 'block' }}>
+              {/* <small style={{ color: 'var(--text-muted)', fontSize: '11px', marginTop: '4px', display: 'block' }}>
                 Use demo code: <span style={{ color: 'var(--accent-purple)', fontWeight: 'bold' }}>{TEACHER_ACCESS_CODE}</span>
-              </small>
+              </small> */}
             </div>
           )}
 
